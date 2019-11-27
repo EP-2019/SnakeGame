@@ -1,7 +1,10 @@
 import pygame
+from datetime import datetime
+from datetime import timedelta
+
 from init import *
 
-indir_key = {
+dir_key = {
     pygame.K_UP: 'up',
     pygame.K_DOWN: 'down',
     pygame.K_LEFT: 'left',
@@ -24,11 +27,18 @@ class EarthWorm:
         for p in self.pos:
             draw_block(s, self.c, p)
 
+    def go(self):
+        h_pos = self.pos[0]
+        x, y = h_pos
+
+        if self.dir == 'up':
+            self.pos = [(x, y - 1)] + self.pos[:-1]
+
 
 class GameItem:
 
-    def __init__(self):
-        self.pos = (5, 5)
+    def __init__(self, p=(5,5)):
+        self.pos = p
         self.c = blue
 
     def draw(self, s):
@@ -46,6 +56,13 @@ class Game:
     def draw(self, s):
         self.worm.draw(s)
         self.item.draw(s)
+
+    def go(self):
+        self.worm.go()
+
+        if self.worm.pos[0] == self.item.pos:
+            self.worm.next()
+            self.new_item()
 
 
 def draw_bg(s):
@@ -67,12 +84,19 @@ pygame.display.update()
 
 game = Game()
 
+v = timedelta(seconds=0.5)
+t = datetime.now()
+
 while True:
     events = pygame.event.get()
 
     for e in events:
         if e.type == pygame.QUIT:
             exit()
+
+    if v < datetime.now() - t:
+        game.go()
+        t = datetime.now()
 
     draw_bg(scr)
     game.draw(scr)
