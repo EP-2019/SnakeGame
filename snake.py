@@ -15,6 +15,7 @@ dir_key = {
 s_x = scr_w // block // 2
 s_y = scr_h // block // 2
 s_pos = [(s_x, s_y), (s_x, s_y + 1), (s_x, s_y + 2), (s_x, s_y + 3)]
+speed = 0.2
 
 
 class ItemException(Exception):
@@ -26,11 +27,12 @@ class EarthWorm:
     def __init__(self):
         self.pos = s_pos
         self.dir = 'up'
-        self.c = gray
+        self.img = pygame.image.load('./images/dinosaur.png').convert_alpha()
+        self.img = pygame.transform.scale(self.img, (scr_w // block // 2, scr_h // block // 2))
 
     def draw(self, s):
         for p in self.pos:
-            draw_block(s, self.c, p)
+            draw_image(s, self.img, p)
 
     def go(self):
         h_pos = self.pos[0]
@@ -67,9 +69,11 @@ class GameItem:
     def __init__(self, p=(5,5)):
         self.pos = p
         self.c = blue
+        self.img = pygame.image.load('./images/redball.png').convert_alpha()
+        self.img = pygame.transform.scale(self.img, (scr_w // block, scr_h // block))
 
     def draw(self, s):
-        draw_block(s, self.c, self.pos)
+        draw_image(s, self.img, self.pos)
 
 
 class Game:
@@ -79,6 +83,7 @@ class Game:
         self.item = GameItem()
         self.w = scr_w // block
         self.h = scr_h // block
+        self.score = 0
 
     def draw(self, s):
         self.worm.draw(s)
@@ -90,7 +95,13 @@ class Game:
         if self.worm.pos[0] in self.worm.pos[1:]:
             raise ItemException()
 
+        x, y = self.worm.pos[0]
+
+        if x < 0 or x >= self.w or y < 0 or y >= self.h:
+            raise ItemException()
+
         if self.worm.pos[0] == self.item.pos:
+            self.score += 100
             self.worm.next()
             self.new_item()
 
@@ -110,9 +121,8 @@ def draw_bg(s):
     pygame.draw.rect(s, white, bg)
 
 
-def draw_block(s, c, p):
-    b = pygame.Rect((p[0] * block, p[1] * block), (block, block))
-    pygame.draw.rect(s, c, b)
+def draw_image(s, img, p):
+    s.blit(img, (p[0] * block, p[1] * block))
 
 
 pygame.init()
@@ -124,7 +134,7 @@ pygame.display.update()
 
 game = Game()
 
-v = timedelta(seconds=0.2)
+v = timedelta(seconds=speed)
 t = datetime.now()
 
 while True:
