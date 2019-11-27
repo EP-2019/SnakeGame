@@ -17,6 +17,10 @@ s_y = scr_h // block // 2
 s_pos = [(s_x, s_y), (s_x, s_y + 1), (s_x, s_y + 2), (s_x, s_y + 3)]
 
 
+class ItemException(Exception):
+    pass
+
+
 class EarthWorm:
 
     def __init__(self):
@@ -83,6 +87,9 @@ class Game:
     def go(self):
         self.worm.go()
 
+        if self.worm.pos[0] in self.worm.pos[1:]:
+            raise ItemException()
+
         if self.worm.pos[0] == self.item.pos:
             self.worm.next()
             self.new_item()
@@ -131,7 +138,11 @@ while True:
                 game.worm.turn(dir_key[e.key])
 
     if v < datetime.now() - t:
-        game.go()
+        try:
+            game.go()
+        except ItemException:
+            quit()
+
         t = datetime.now()
 
     draw_bg(scr)
