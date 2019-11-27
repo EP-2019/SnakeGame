@@ -1,4 +1,5 @@
 import pygame
+import random
 from datetime import datetime
 from datetime import timedelta
 
@@ -33,6 +34,28 @@ class EarthWorm:
 
         if self.dir == 'up':
             self.pos = [(x, y - 1)] + self.pos[:-1]
+        elif self.dir == 'down':
+            self.pos = [(x, y + 1)] + self.pos[:-1]
+        elif self.dir == 'left':
+            self.pos = [(x - 1, y)] + self.pos[:-1]
+        elif self.dir == 'right':
+            self.pos = [(x + 1, y)] + self.pos[:-1]
+
+    def turn(self, d):
+        self.dir = d
+
+    def next(self):
+        t_pos = self.pos[-1]
+        x, y = t_pos
+
+        if self.dir == 'up':
+            self.pos.append((x, y - 1))
+        elif self.dir == 'down':
+            self.pos.append((x, y + 1))
+        elif self.dir == 'left':
+            self.pos.append((x - 1, y))
+        elif self.dir == 'right':
+            self.pos.append((x + 1, y))
 
 
 class GameItem:
@@ -64,6 +87,16 @@ class Game:
             self.worm.next()
             self.new_item()
 
+    def new_item(self):
+        nx = random.randint(0, self.w - 1)
+        ny = random.randint(0, self.h - 1)
+        self.item = GameItem((nx, ny))
+
+        for p in self.worm.pos:
+            if self.item.pos == p:
+                self.new_item()
+                break
+
 
 def draw_bg(s):
     bg = pygame.Rect((0, 0), (scr_w, scr_h))
@@ -84,7 +117,7 @@ pygame.display.update()
 
 game = Game()
 
-v = timedelta(seconds=0.5)
+v = timedelta(seconds=0.2)
 t = datetime.now()
 
 while True:
@@ -93,6 +126,9 @@ while True:
     for e in events:
         if e.type == pygame.QUIT:
             exit()
+        if e.type == pygame.KEYDOWN:
+            if e.key in dir_key:
+                game.worm.turn(dir_key[e.key])
 
     if v < datetime.now() - t:
         game.go()
