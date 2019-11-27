@@ -6,7 +6,7 @@ green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
 
-scr_w = 1024
-scr_h = 768
+scr_w = 800
+scr_h = 600
 
 block = 20
